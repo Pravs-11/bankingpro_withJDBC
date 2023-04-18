@@ -62,6 +62,81 @@ public class bankingdao {
 		//return updated amount
 		return amount;
 	}
+	public int withdraw(int amount,int pwd,int cusid)throws Exception {
+		//fetching user details based on customer id
+				String 	query2="select  * from customer where cusid="+cusid;
+				
+				Statement st=con.createStatement();
+				
+				ResultSet rs=st.executeQuery(query2);
+				rs.next();
+				//extracting available amount
+				int availamount=rs.getInt(4);
+				if(pwd==rs.getInt(3))
+				{
+					//if availabkle amount is > required amount then only withdraw
+					if(amount<availamount) {
+						availamount-=amount;
+						String query="update customer set cusamount="+availamount+" where cusid="+cusid;
+						
+						PreparedStatement pst=con.prepareStatement(query);
+						pst.executeUpdate();
+						return availamount;		
+					}
+					else {
+						return -1;
+					}
+				}
+				else {
+					return 0;
+				}
+	}
+	
+	
+	public int changepwd(int currentpwd,int newpwd, int cusid)throws Exception{
+		//fetching user details
+		String 	query2="select  * from customer where cusid="+cusid;
+		
+		Statement st=con.createStatement();
+		
+		ResultSet rs=st.executeQuery(query2);
+		rs.next();
+		//confirming existing password
+		if(currentpwd==rs.getInt(3)) {
+			//update new pwd in db
+			String query="update customer set cuspin="+newpwd+" where cusid="+cusid;
+			
+				PreparedStatement pst=con.prepareStatement(query);
+				pst.executeUpdate();
+				return 1;
+		}
+		else {
+			return 0;
+		}
+	}
+	
+	public int deleteAccount(int pwd, int cusid)throws Exception{
+		//fetching user details
+		String 	query2="select  * from customer where cusid="+cusid;
+		
+		Statement st=con.createStatement();
+		
+		ResultSet rs=st.executeQuery(query2);
+		rs.next();
+		//confirming pwd
+		if(pwd==rs.getInt(3)) {
+		
+			//delete the account
+			String query="delete from customer where cusid="+cusid;
+			
+			PreparedStatement pst=con.prepareStatement(query);
+				pst.executeUpdate();
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
 	
 
 }
